@@ -1,0 +1,35 @@
+{
+  "package": "omml",
+  "planned_repository": "plurimath/omml-python",
+  "qualified_source_head": "ae8632c3cf2471850e414df5a33bec12c546f5c0",
+  "rust_toolchain": "1.95.0",
+  "native": {
+    "kind": "prebuilt-library",
+    "repository": "plurimath/omml-rs",
+    "local": "workspace/xml-native/omml-rs",
+    "revision": "e95885daacf5febe8c38eeba476e0d32d5107507",
+    "public": false,
+    "deps": {
+      "lutaml_rs": {
+        "repository": "lutaml/lutaml-rs",
+        "revision": "d56a82d79d9bc74b1483cc85b2cfde62c721ebdd",
+        "public": false
+      },
+      "moxml_rs": {
+        "repository": "lutaml/moxml-rs",
+        "revision": "c55a7ecf60764d75a7a0ef54f0e483ec40df4b73",
+        "public": true
+      }
+    }
+  },
+  "data": null,
+  "tests": [
+    "tests/test_installed.py",
+    "tests/test_platform.py"
+  ],
+  "python_runtime": {
+    "repository": "parsanol/parsanol-python",
+    "revision": "7bb1e554ec29dcd82ee7a2c467bc46309170ceeb",
+    "note": "only for packages that load Parsanol at runtime; none of these five does (native stages are self-contained)"
+  }
+}

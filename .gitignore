@@ -2,3 +2,10 @@
 /dist/
 *.egg-info/
 __pycache__/
+# CI working folders
+.ci-evidence/
+.ci-venv/
+.ci-build-venv/
+.native/
+.native-src/
+dist/
