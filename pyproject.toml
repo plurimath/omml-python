@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=69", "wheel>=0.43"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "omml"
+version = "0.1.0"
+description = "Native generated OMML model and XML transport"
+requires-python = ">=3.9"
+license = "BSD-2-Clause"
+readme = "README.md"
+
+[tool.setuptools]
+license-files = ["NOTICE"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

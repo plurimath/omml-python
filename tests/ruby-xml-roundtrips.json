@@ -1,0 +1,68 @@
+[
+  {
+    "id": "math-run",
+    "root": "OMath",
+    "input": "<m:oMath xmlns:m=\"http://schemas.openxmlformats.org/officeDocument/2006/math\"><m:r><m:t>x+y</m:t></m:r></m:oMath>",
+    "expected_xml": "<m:oMath xmlns:m=\"http://schemas.openxmlformats.org/officeDocument/2006/math\">\n  <m:r>\n    <m:t>x+y</m:t>\n  </m:r>\n</m:oMath>"
+  },
+  {
+    "id": "math-fraction",
+    "root": "OMath",
+    "input": "<m:oMath xmlns:m=\"http://schemas.openxmlformats.org/officeDocument/2006/math\"><m:f><m:num><m:r><m:t>1</m:t></m:r></m:num><m:den><m:r><m:t>2</m:t></m:r></m:den></m:f></m:oMath>",
+    "expected_xml": "<m:oMath xmlns:m=\"http://schemas.openxmlformats.org/officeDocument/2006/math\">\n  <m:f>\n    <m:num>\n      <m:r>\n        <m:t>1</m:t>\n      </m:r>\n    </m:num>\n    <m:den>\n      <m:r>\n        <m:t>2</m:t>\n      </m:r>\n    </m:den>\n  </m:f>\n</m:oMath>"
+  },
+  {
+    "id": "math-paragraph",
+    "root": "OMathPara",
+    "input": "<m:oMathPara xmlns:m=\"http://schemas.openxmlformats.org/officeDocument/2006/math\"><m:oMath><m:r><m:t>x</m:t></m:r></m:oMath></m:oMathPara>",
+    "expected_xml": "<m:oMathPara xmlns:m=\"http://schemas.openxmlformats.org/officeDocument/2006/math\">\n  <m:oMath>\n    <m:r>\n      <m:t>x</m:t>\n    </m:r>\n  </m:oMath>\n</m:oMathPara>"
+  },
+  {
+    "id": "anchor-point",
+    "root": "CTAnchor",
+    "input": "<m:CT_Anchor xmlns:m=\"http://schemas.openxmlformats.org/officeDocument/2006/math\" m:simplePos=\"true\"><m:simplePos m:x=\"125\" m:y=\"-250\"/></m:CT_Anchor>",
+    "expected_xml": "<m:CT_Anchor xmlns:m=\"http://schemas.openxmlformats.org/officeDocument/2006/math\" m:simplePos=\"true\">\n  <m:simplePos m:x=\"0.125e3\" m:y=\"-0.25e3\"/>\n</m:CT_Anchor>"
+  },
+  {
+    "id": "anchor-imported-wrap",
+    "root": "CTAnchor",
+    "input": "<m:CT_Anchor xmlns:m=\"http://schemas.openxmlformats.org/officeDocument/2006/math\" m:simplePos=\"false\"><m:simplePos m:x=\"0\" m:y=\"0\"/><m:docPr m:id=\"1\" m:name=\"shape\"/><m:wrapNone/></m:CT_Anchor>",
+    "expected_xml": "<m:CT_Anchor xmlns:m=\"http://schemas.openxmlformats.org/officeDocument/2006/math\" m:simplePos=\"false\">\n  <m:simplePos m:x=\"0.0\" m:y=\"0.0\"/>\n  <m:docPr m:id=\"1\" m:name=\"shape\"/>\n  <m:wrapNone/>\n</m:CT_Anchor>"
+  },
+  {
+    "id": "date-0",
+    "root": "CTMoveBookmark",
+    "input": "<m:CT_MoveBookmark xmlns:m=\"http://schemas.openxmlformats.org/officeDocument/2006/math\" m:date=\"2024-01-02T03:04:05Z\"/>",
+    "expected_xml": "<m:CT_MoveBookmark xmlns:m=\"http://schemas.openxmlformats.org/officeDocument/2006/math\" m:date=\"2024-01-02T03:04:05Z\"/>"
+  },
+  {
+    "id": "date-1",
+    "root": "CTMoveBookmark",
+    "input": "<m:CT_MoveBookmark xmlns:m=\"http://schemas.openxmlformats.org/officeDocument/2006/math\" m:date=\"2024-01-02T03:04:05+05:30\"/>",
+    "expected_xml": "<m:CT_MoveBookmark xmlns:m=\"http://schemas.openxmlformats.org/officeDocument/2006/math\" m:date=\"2024-01-02T03:04:05+05:30\"/>"
+  },
+  {
+    "id": "date-2",
+    "root": "CTMoveBookmark",
+    "input": "<m:CT_MoveBookmark xmlns:m=\"http://schemas.openxmlformats.org/officeDocument/2006/math\" m:date=\"2024-01-02T03:04:05-07:00\"/>",
+    "expected_xml": "<m:CT_MoveBookmark xmlns:m=\"http://schemas.openxmlformats.org/officeDocument/2006/math\" m:date=\"2024-01-02T03:04:05-07:00\"/>"
+  },
+  {
+    "id": "date-3",
+    "root": "CTMoveBookmark",
+    "input": "<m:CT_MoveBookmark xmlns:m=\"http://schemas.openxmlformats.org/officeDocument/2006/math\" m:date=\"2024-01-02T03:04:05.123456Z\"/>",
+    "expected_xml": "<m:CT_MoveBookmark xmlns:m=\"http://schemas.openxmlformats.org/officeDocument/2006/math\" m:date=\"2024-01-02T03:04:05.123456Z\"/>"
+  },
+  {
+    "id": "date-4",
+    "root": "CTMoveBookmark",
+    "input": "<m:CT_MoveBookmark xmlns:m=\"http://schemas.openxmlformats.org/officeDocument/2006/math\" m:date=\"2024-01-02T03:04:05.500Z\"/>",
+    "expected_xml": "<m:CT_MoveBookmark xmlns:m=\"http://schemas.openxmlformats.org/officeDocument/2006/math\" m:date=\"2024-01-02T03:04:05.500Z\"/>"
+  },
+  {
+    "id": "date-5",
+    "root": "CTMoveBookmark",
+    "input": "<m:CT_MoveBookmark xmlns:m=\"http://schemas.openxmlformats.org/officeDocument/2006/math\" m:date=\"2024-01-02T03:04:05\"/>",
+    "expected_xml": "<m:CT_MoveBookmark xmlns:m=\"http://schemas.openxmlformats.org/officeDocument/2006/math\" m:date=\"2024-01-02T03:04:05Z\"/>"
+  }
+]

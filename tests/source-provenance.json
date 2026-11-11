@@ -1,0 +1,7 @@
+{
+  "omml_source": "e14a91077c13c62878f641550e54ca4768fcfde5",
+  "ruby_framework": "eff859d0f6c2bb0936dd3add8ee252aea9dbaa17",
+  "native_source": "e95885daacf5febe8c38eeba476e0d32d5107507",
+  "fixture_sha256": "c2c9b52ecb57bc194b19cf5fbfdff62f9d22beac30873473f7f5435b7fee586e",
+  "comparison": "Expanded XML element/attribute names, exact attribute values and meaningful text; namespace-prefix and structural indentation differences only."
+}
