@@ -68,9 +68,17 @@ def library_file(stem):
     return f"lib{stem}." + ("dylib" if sys.platform == "darwin" else "so")
 
 
+def sibling_checkouts():
+    """Path dependencies (e.g. ../unitsdb-rs) are checked out next to the main source at their pins."""
+    for dep in (NATIVE.get("deps") or {}).values():
+        if dep.get("checkout_as"):
+            checkout(dep, dep["checkout_as"])
+
+
 def build_native():
     STAGING.mkdir(exist_ok=True)
     kind = NATIVE["kind"]
+    sibling_checkouts()
     rust = checkout(NATIVE, "rust")
     if kind == "mml-dual":
         framework = checkout(NATIVE["framework"], "framework")
@@ -78,16 +86,11 @@ def build_native():
              "--rust-source", rust, "--target-dir", SOURCES / "target"], "build-native")
         shutil.copytree(native_dir(), STAGING / "_native", dirs_exist_ok=True)
     elif kind == "prebuilt-library":
-        env = dict(os.environ, CARGO_TARGET_DIR=str(SOURCES / "target"))
-        run(["cargo", "build", "--locked", "--release"], "cargo-build", cwd=rust, env=env)
-        stem = NATIVE.get("library_stem") or Path(rust).name.replace("-", "_")
-        candidates = list((SOURCES / "target" / "release").glob(library_file("*")))
-        if not candidates:
-            raise SystemExit("cargo produced no cdylib")
-        for c in candidates:
-            shutil.copy2(c, STAGING / c.name)
-        (STAGING / "cargo-metadata.json").write_text(
-            run(["cargo", "metadata", "--locked", "--format-version", "1"], "cargo-metadata", cwd=rust, env=env))
+        # The CI producer builds the pinned clean source and records a build receipt;
+        # scripts/build-wheel.py validates it against the pins and the actual binary.
+        run([sys.executable, ROOT / "scripts/build-native-receipt.py", "--rust-source", rust,
+             "--target-dir", SOURCES / "target", "--out-dir", STAGING,
+             "--library-name", library_file(NATIVE["library_stem"])], "build-native")
     elif kind == "cargo-build":
         pass  # the package's own wheel builder runs cargo itself
     else:
@@ -120,9 +123,10 @@ def build_wheel(dist):
         shutil.copytree(STAGING / "_native", native_dir(), dirs_exist_ok=True)
         run([py, "-m", "pip", "wheel", "--no-deps", "--no-build-isolation", "-w", dist, ROOT], "wheel")
     elif kind == "prebuilt-library":
-        library = next(p for p in STAGING.iterdir() if p.suffix in (".so", ".dll", ".dylib"))
+        library = STAGING / library_file(NATIVE["library_stem"])
         run([py, ROOT / "scripts/build-wheel.py", "--rust-source", rust, "--library", library,
-             "--cargo-metadata", STAGING / "cargo-metadata.json", "--wheel-dir", dist], "wheel")
+             "--cargo-metadata", STAGING / "cargo-metadata.json", "--build-receipt", STAGING / "build-receipt.json",
+             "--wheel-dir", dist], "wheel")
     elif kind == "cargo-build":
         run([py, ROOT / "scripts/build-wheel.py", "--rust-source", rust,
              "--target-dir", SOURCES / "target", "--wheel-dir", dist], "wheel")

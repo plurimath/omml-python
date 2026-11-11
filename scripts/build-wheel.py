@@ -19,6 +19,27 @@ def digest(path):
     return sha256(path.read_bytes()).hexdigest()
 
 
+def validated_receipt(path, pins, binary, metadata_path, platform_tag):
+    """CI-produced artifact path: every receipt field must agree with the pins, the host
+    platform and the actual files. Nothing is skipped or rewritten."""
+    receipt = json.loads(Path(path).read_bytes())
+    if receipt.get("kind") != "native-build-receipt/v1":
+        raise RuntimeError("Build receipt has an unknown kind")
+    if receipt["native_source_commit"] != pins["native_source_commit"]:
+        raise RuntimeError("Build receipt source commit differs from the pinned native source")
+    if receipt["cargo_lock_sha256"] != pins["cargo_lock_sha256"]:
+        raise RuntimeError("Build receipt Cargo.lock differs from the pinned lockfile")
+    if receipt["platform_tag"] != pins["platform_tag"] or receipt["platform_tag"] != platform_tag:
+        raise RuntimeError("Build receipt platform differs from the pinned wheel platform")
+    if receipt["library"] != binary.name:
+        raise RuntimeError("Build receipt names a different library")
+    if digest(binary) != receipt["library_sha256"]:
+        raise RuntimeError("Library differs from the binary recorded in the build receipt")
+    if digest(metadata_path) != receipt["cargo_metadata_sha256"]:
+        raise RuntimeError("Cargo metadata differs from the build receipt")
+    return receipt
+
+
 def main():
     cli = argparse.ArgumentParser(description=__doc__)
     cli.add_argument("--rust-source", required=True, type=Path)
@@ -28,6 +49,7 @@ def main():
     cli.add_argument("--prepare-dir", type=Path, help="Validate and emit native receipt/notices without building a wheel")
     cli.add_argument("--platform-tag", choices=("linux_x86_64", "win_amd64"))
     cli.add_argument("--target-metadata", type=Path, help="Exact target metadata when preparing on another platform")
+    cli.add_argument("--build-receipt", type=Path, help="CI build receipt from scripts/build-native-receipt.py; replaces only the fixed library_sha256 comparison, after validating the receipt")
     args = cli.parse_args()
     source = args.rust_source.resolve()
     platform_tag = args.platform_tag or sysconfig.get_platform().replace("-", "_").replace(".", "_")
@@ -48,7 +70,10 @@ def main():
     expected_library = "omml.dll" if platform_tag == "win_amd64" else "libomml.so"
     if platform_tag != pins["platform_tag"] or binary.name != expected_library:
         raise RuntimeError("Native library does not target this wheel platform")
-    if digest(binary) != pins["library_sha256"]:
+    build_receipt = None
+    if args.build_receipt:
+        build_receipt = validated_receipt(args.build_receipt, pins, binary, args.cargo_metadata, platform_tag)
+    elif digest(binary) != pins["library_sha256"]:
         raise RuntimeError("Library differs from the pinned native build")
     if platform_tag == "win_amd64":
         image = binary.read_bytes()
@@ -56,7 +81,7 @@ def main():
         if image[:2] != b"MZ" or image[pe:pe+4] != b"PE\0\0" or struct.unpack_from("<H", image, pe+4)[0] != 0x8664:
             raise RuntimeError("Native library is not a Windows AMD64 PE image")
     metadata_pin = pins.get("source_metadata_sha256", pins.get("cargo_metadata_sha256"))
-    if metadata_pin and digest(args.cargo_metadata) != metadata_pin:
+    if metadata_pin and not build_receipt and digest(args.cargo_metadata) != metadata_pin:
         raise RuntimeError("Cargo metadata differs from the pinned native build")
     metadata = json.loads(args.cargo_metadata.read_bytes())
     if Path(metadata["workspace_root"]).resolve() != source:
@@ -152,6 +177,8 @@ def main():
         receipt = staging / "build-info.json"
         receipt.write_text(json.dumps({
             **pins, "library": binary.name, "sha256": digest(binary), "abi_version": 1,
+            "binary_provenance": "ci-build-receipt" if build_receipt else "pinned-binary",
+            "build_receipt": build_receipt,
             "cargo_metadata_sha256": digest(args.target_metadata or args.cargo_metadata),
         }, indent=2) + "\n")
         if args.prepare_dir:
