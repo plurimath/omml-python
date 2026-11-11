@@ -5,6 +5,8 @@ from functools import lru_cache
 from hashlib import sha256
 import json
 from pathlib import Path
+import sys
+import sysconfig
 
 
 class OMMLError(ValueError):
@@ -24,7 +26,9 @@ class Runtime:
         if library_path is None:
             directory = Path(__file__).with_name("_native")
             receipt = json.loads((directory / "build-info.json").read_bytes())
-            if receipt["abi_version"] != 1 or receipt["library"] != "libomml.so":
+            expected = "omml.dll" if sys.platform == "win32" else "libomml.so"
+            platform = sysconfig.get_platform().replace("-", "_").replace(".", "_")
+            if receipt["abi_version"] != 1 or receipt["library"] != expected or receipt["platform_tag"] != platform:
                 raise NativeRuntimeError("Unsupported bundled OMML ABI")
             library_path = directory / receipt["library"]
             if sha256(library_path.read_bytes()).hexdigest() != receipt["sha256"]:
