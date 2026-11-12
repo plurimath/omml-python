@@ -1,0 +1,25 @@
+{
+  "native_source_commit": "0439c1dedc56c5f9ca27446420b6e20367aba3ff",
+  "cargo_lock_sha256": "ed3958da95f33844fd0f13afeb945a86fad3416deff0d5f78bb063e67b8dc651",
+  "native_source_dependencies": {
+    "lutaml-rs": "3855de1ab72a7a750c3b72c010b11b22c7ec29a0"
+  },
+  "native_data": {
+    "omml-rs": {
+      "model/runtime-graph-v1.json": "ed54e558b492ef46211d0df66c77b496aab33d1b43a42d277948023bde04bb5d"
+    }
+  },
+  "features": [
+    "model-serde"
+  ],
+  "platform_tag": "win_amd64",
+  "target": "x86_64-pc-windows-msvc",
+  "chrono_archive": {
+    "version": "0.4.42",
+    "sha256": "145052bdd345b87320e369255277e3fb5152762ad123a901ef5c262dd38fe8d2",
+    "yanked": false
+  },
+  "ruby_oracle_fixture_sha256": "c2c9b52ecb57bc194b19cf5fbfdff62f9d22beac30873473f7f5435b7fee586e",
+  "model_count": 186,
+  "binary_policy": "Build the exact public source on this platform and require a verified source, lock, binary and metadata build receipt. Historical prebuilt pins remain under ci/historical-native-pins."
+}

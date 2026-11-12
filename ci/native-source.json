@@ -1,0 +1,38 @@
+{
+  "package": "omml",
+  "planned_repository": "plurimath/omml-python",
+  "qualified_source_head": "ae8632c3cf2471850e414df5a33bec12c546f5c0",
+  "rust_toolchain": "1.95.0",
+  "native": {
+    "kind": "prebuilt-library",
+    "repository": "plurimath/omml-rs",
+    "local": "workspace/xml-native/omml-rs",
+    "revision": "0439c1dedc56c5f9ca27446420b6e20367aba3ff",
+    "public": true,
+    "deps": {
+      "lutaml_rs": {
+        "repository": "suleman-uzair/lutaml-rs",
+        "revision": "3855de1ab72a7a750c3b72c010b11b22c7ec29a0",
+        "public": true
+      },
+      "moxml_rs": {
+        "repository": "lutaml/moxml-rs",
+        "revision": "c55a7ecf60764d75a7a0ef54f0e483ec40df4b73",
+        "public": true
+      }
+    },
+    "library_stem": "omml",
+    "binary_policy": "CI builds the pinned clean source with scripts/build-native-receipt.py; build-wheel.py --build-receipt validates commit, Cargo.lock, platform, metadata and the actual library hash. Without a receipt the fixed library_sha256 pin is enforced."
+  },
+  "data": null,
+  "tests": [
+    "tests/test_installed.py",
+    "tests/test_platform.py",
+    "tests/test_depth.py"
+  ],
+  "python_runtime": {
+    "repository": "parsanol/parsanol-python",
+    "revision": "7bb1e554ec29dcd82ee7a2c467bc46309170ceeb",
+    "note": "only for packages that load Parsanol at runtime; none of these five does (native stages are self-contained)"
+  }
+}

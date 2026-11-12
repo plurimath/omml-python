@@ -1,0 +1,79 @@
+name: Python installed wheels
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: python-ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  native:
+    name: Native stage (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: '1.95.0'
+      - name: Build the pinned public native library once
+        run: python scripts/ci.py build-native
+      - uses: actions/upload-artifact@v4
+        with:
+          name: native-${{ matrix.os }}
+          include-hidden-files: true
+          path: .native/*
+          if-no-files-found: error
+          retention-days: 3
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-evidence-${{ matrix.os }}
+          path: .ci-evidence/*
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 3
+  installed:
+    name: Installed wheel (${{ matrix.os }}, Python ${{ matrix.python }})
+    needs: native
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04]
+        python: ['3.9', '3.10', '3.11', '3.12', '3.13', '3.14', '3.15']
+        include:
+          - os: windows-latest
+            python: '3.15'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: native-${{ matrix.os }}
+          path: .native
+      - name: Build the wheel and install it in a fresh environment
+        run: python scripts/ci.py install-wheel
+      - name: Test every repository fixture against the installed wheel
+        run: python scripts/ci.py test-installed
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: evidence-${{ matrix.os }}-${{ matrix.python }}
+          include-hidden-files: true
+          path: .ci-evidence/*
+          if-no-files-found: warn
+          retention-days: 7
