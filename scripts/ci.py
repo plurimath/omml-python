@@ -157,20 +157,27 @@ def install_wheel():
 
 
 def test_installed():
+    blocked = {"PYTHONPATH", "PYTHONHOME", "LD_LIBRARY_PATH", "DYLD_LIBRARY_PATH",
+               "DYLD_FALLBACK_LIBRARY_PATH", "RUST_MIN_STACK"}
+    clean = {key:value for key,value in os.environ.items()
+             if key not in blocked and not key.startswith(("MML_", "OMML_", "PARSANOL_"))}
+    if sys.platform == "win32":
+        system = clean.get("SystemRoot", r"C:\Windows")
+        clean["PATH"] = system + r"\System32;" + system
     python = environment() / ("Scripts/python.exe" if sys.platform == "win32" else "bin/python")
     with tempfile.TemporaryDirectory(prefix=f"{PACKAGE}-installed-") as work:
         tests = Path(work) / "tests"
         if (ROOT / "tests").exists():
             shutil.copytree(ROOT / "tests", tests)
         location = run([python, "-c", f"import {PACKAGE}, pathlib; print(pathlib.Path({PACKAGE}.__file__).resolve())"],
-                       "import-location", cwd=work).strip()
+                       "import-location", cwd=work, env=clean).strip()
         if Path(location).is_relative_to(ROOT / "src"):
             raise SystemExit(f"{PACKAGE} imported from the source tree, not the installed wheel: {location}")
         if CONFIG["tests"]:
             names = [Path(t).stem for t in CONFIG["tests"]]
-            run([python, "-m", "unittest", "-v", *names], "test-installed", cwd=tests)
+            run([python, "-m", "unittest", "-v", *names], "test-installed", cwd=tests, env=clean)
         else:
-            run([python, "-c", SEAL_CHECK], "test-installed", cwd=work)
+            run([python, "-c", SEAL_CHECK], "test-installed", cwd=work, env=clean)
 
 
 SEAL_CHECK = """
