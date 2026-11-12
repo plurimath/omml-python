@@ -118,7 +118,10 @@ def build_wheel(dist):
         run([py, "-m", "pip", "wheel", "--no-deps", "--no-build-isolation", "-w", dist, ROOT], "wheel")
         return
     kind = NATIVE["kind"]
+    sibling_checkouts()
     rust = checkout(NATIVE, "rust")
+    # Wheel jobs run on fresh runners; restore exact notice sources without rebuilding.
+    run(["cargo", "fetch", "--locked"], "fetch-notice-sources", cwd=rust)
     if kind == "mml-dual":
         shutil.copytree(STAGING / "_native", native_dir(), dirs_exist_ok=True)
         run([py, "-m", "pip", "wheel", "--no-deps", "--no-build-isolation", "-w", dist, ROOT], "wheel")

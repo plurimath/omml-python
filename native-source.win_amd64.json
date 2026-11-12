@@ -1,10 +1,8 @@
 {
-  "native_source_commit": "e95885daacf5febe8c38eeba476e0d32d5107507",
-  "library_sha256": "1a40754916a00963b7d554be849ea3a8cf9a890268fbe2138294084cd7a33afa",
-  "cargo_lock_sha256": "05e66109f14ef4279b51d22ec2a5b3ef65ea52790967b3e68727d91c54cc696d",
-  "cargo_metadata_sha256": "cd327871e9a035ea7873ea1e8337e16fe6061d378cbf3ee475a6e8cb1dd2b6fb",
+  "native_source_commit": "0439c1dedc56c5f9ca27446420b6e20367aba3ff",
+  "cargo_lock_sha256": "ed3958da95f33844fd0f13afeb945a86fad3416deff0d5f78bb063e67b8dc651",
   "native_source_dependencies": {
-    "lutaml-rs": "d56a82d79d9bc74b1483cc85b2cfde62c721ebdd"
+    "lutaml-rs": "3855de1ab72a7a750c3b72c010b11b22c7ec29a0"
   },
   "native_data": {
     "omml-rs": {
@@ -15,7 +13,7 @@
     "model-serde"
   ],
   "platform_tag": "win_amd64",
-  "target": "x86_64-pc-windows-gnu",
+  "target": "x86_64-pc-windows-msvc",
   "chrono_archive": {
     "version": "0.4.42",
     "sha256": "145052bdd345b87320e369255277e3fb5152762ad123a901ef5c262dd38fe8d2",
@@ -23,23 +21,5 @@
   },
   "ruby_oracle_fixture_sha256": "c2c9b52ecb57bc194b19cf5fbfdff62f9d22beac30873473f7f5435b7fee586e",
   "model_count": 186,
-  "source_metadata_sha256": "09ccf7e9371963c1943c46a069dd4e1ec15b622cfc5e6af14d685d0e66f5f20d",
-  "native_build_receipt_sha256": "632a64609decdccfc6cad8eb7142263c5bb7271bc47042cf9505325dc2c0618c",
-  "build_profile": {
-    "profile": "dev",
-    "package_opt_level": {
-      "omml-rs": 1
-    },
-    "sdk_opt_level": 0,
-    "debug_info": 0,
-    "incremental": false
-  },
-  "minimum_windows": "Windows 10 x86_64",
-  "depth_qualification": {
-    "16": "parse/write/model-json/reuse success",
-    "64": "parse/write/model-json/reuse success",
-    "128": "typed source-parser depth refusal and reuse",
-    "256": "typed source-parser depth refusal and reuse"
-  },
-  "debug_build_limitation": "The unoptimized debug0 artifact overflows the Windows caller stack at depth64; it is not the shipped production library. No larger stack, lower depth cap or parser fallback is used."
+  "binary_policy": "Build the exact public source on this platform and require a verified source, lock, binary and metadata build receipt. Historical prebuilt pins remain under ci/historical-native-pins."
 }

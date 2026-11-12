@@ -4,13 +4,14 @@ The receipt records what CI actually built: source commit, Cargo.lock hash, targ
 platform, compiler and Cargo versions, the exact build invocation, and the resulting
 library hash. scripts/build-wheel.py --build-receipt validates this receipt against
 the repository pins and the actual binary before packing. It does not replace the pinned
-library_sha256 path, which stays the default.
+library_sha256 path for historical source pins; current public pins require a build receipt.
 """
 
 import argparse
 from hashlib import sha256
 import json
 import os
+import platform
 from pathlib import Path
 import shutil
 import subprocess
@@ -64,6 +65,8 @@ def main():
         ["cargo", "metadata", "--locked", "--format-version", "1", "--filter-platform", host], cwd=source, env=env))
     receipt = {
         "kind": "native-build-receipt/v1",
+        "build_host": {"system": platform.system(), "release": platform.release(),
+                       "version": platform.version(), "machine": platform.machine(), "python": sys.version},
         "native_source_commit": revision,
         "cargo_lock_sha256": lock,
         "platform_tag": sysconfig.get_platform().replace("-", "_").replace(".", "_"),

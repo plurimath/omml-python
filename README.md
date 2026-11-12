@@ -27,3 +27,8 @@ and the normal pinned library, source and source-metadata arguments. Build the
 actual wheel on Windows with `OMML_NATIVE` and `OMML_NATIVE_RECEIPT` pointing at
 the qualified DLL and prepared `build-info.json`. Neither variable is required
 after installation. Linux defaults and seals remain in `native-source.json`.
+
+Public source builds use the exact merged native commit and Cargo.lock, then
+validate a per-build receipt against the actual library and Cargo metadata.
+Historical e958 prebuilt pins are preserved under `ci/historical-native-pins`;
+they are not claimed as artifacts of the newer public source.

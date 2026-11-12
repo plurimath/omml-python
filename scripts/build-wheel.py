@@ -73,8 +73,8 @@ def main():
     build_receipt = None
     if args.build_receipt:
         build_receipt = validated_receipt(args.build_receipt, pins, binary, args.cargo_metadata, platform_tag)
-    elif digest(binary) != pins["library_sha256"]:
-        raise RuntimeError("Library differs from the pinned native build")
+    elif not pins.get("library_sha256") or digest(binary) != pins["library_sha256"]:
+        raise RuntimeError("This source requires its exact --build-receipt; no prebuilt library hash is admitted")
     if platform_tag == "win_amd64":
         image = binary.read_bytes()
         pe = struct.unpack_from("<I", image, 0x3c)[0]
@@ -156,7 +156,8 @@ def main():
                 destination.write_text(json.dumps({
                     "package": package["name"], "version": package["version"],
                     "spdx": package["license"], "source": package["source"],
-                    "source_revision": pins.get("native_source_dependencies", {}).get(package["name"]),
+                    "source_revision": (pins.get("native_source_dependencies", {}).get(package["name"])
+                        or (package["source"].rsplit("#", 1)[-1] if (package.get("source") or "").startswith("git+") else None)),
                     "manifest_sha256": digest(base / "Cargo.toml"),
                     "notice": "Upstream source declares SPDX metadata and has no standalone license or notice file.",
                 }, indent=2) + "\n")
@@ -177,6 +178,7 @@ def main():
         receipt = staging / "build-info.json"
         receipt.write_text(json.dumps({
             **pins, "library": binary.name, "sha256": digest(binary), "abi_version": 1,
+            "target": build_receipt["target"] if build_receipt else pins["target"],
             "binary_provenance": "ci-build-receipt" if build_receipt else "pinned-binary",
             "build_receipt": build_receipt,
             "cargo_metadata_sha256": digest(args.target_metadata or args.cargo_metadata),

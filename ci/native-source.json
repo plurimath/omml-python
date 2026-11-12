@@ -7,13 +7,13 @@
     "kind": "prebuilt-library",
     "repository": "plurimath/omml-rs",
     "local": "workspace/xml-native/omml-rs",
-    "revision": "e95885daacf5febe8c38eeba476e0d32d5107507",
-    "public": false,
+    "revision": "0439c1dedc56c5f9ca27446420b6e20367aba3ff",
+    "public": true,
     "deps": {
       "lutaml_rs": {
-        "repository": "lutaml/lutaml-rs",
-        "revision": "d56a82d79d9bc74b1483cc85b2cfde62c721ebdd",
-        "public": false
+        "repository": "suleman-uzair/lutaml-rs",
+        "revision": "3855de1ab72a7a750c3b72c010b11b22c7ec29a0",
+        "public": true
       },
       "moxml_rs": {
         "repository": "lutaml/moxml-rs",
@@ -27,7 +27,8 @@
   "data": null,
   "tests": [
     "tests/test_installed.py",
-    "tests/test_platform.py"
+    "tests/test_platform.py",
+    "tests/test_depth.py"
   ],
   "python_runtime": {
     "repository": "parsanol/parsanol-python",
