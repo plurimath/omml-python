@@ -61,8 +61,10 @@ def main():
     library = out / library_name
     shutil.copy2(built, library)
     metadata = out / "cargo-metadata.json"
-    metadata.write_bytes(subprocess.check_output(
-        ["cargo", "metadata", "--locked", "--format-version", "1", "--filter-platform", host], cwd=source, env=env))
+    metadata_command = ["cargo", "metadata", "--locked", "--format-version", "1", "--filter-platform", host]
+    for feature in pins.get("features", []):
+        metadata_command += ["--features", feature]
+    metadata.write_bytes(subprocess.check_output(metadata_command, cwd=source, env=env))
     receipt = {
         "kind": "native-build-receipt/v1",
         "build_host": {"system": platform.system(), "release": platform.release(),
@@ -75,6 +77,7 @@ def main():
         "rustc_verbose": rustc.strip(),
         "cargo": cargo,
         "invocation": invocation,
+        "metadata_invocation": metadata_command,
         "profile": "release",
         "library": library_name,
         "library_sha256": digest(library),
