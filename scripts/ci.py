@@ -183,7 +183,7 @@ def test_installed():
 SEAL_CHECK = """
 import hashlib, json, importlib.resources as r
 data = r.files('unitsdb') / 'data'
-manifest = json.loads((data / 'manifest.json').read_text())
+manifest = json.loads((data / 'manifest.json').read_text(encoding='utf-8'))
 text = json.dumps(manifest)
 for name in ('unitsdb.json', 'lookup-index.json'):
     sha = hashlib.sha256((data / name).read_bytes()).hexdigest()
