@@ -1,0 +1,78 @@
+name: Publish to PyPI
+
+# Trusted publishing (OIDC): needs the owner-side pending-publisher
+# registration on pypi.org for project `omml`, workflow `publish.yml`,
+# environment `pypi`. No API token. Manual dispatch only.
+#
+# Wheels only: each platform wheel vendors the native library built from
+# the pinned core by wheels.yml; an sdist could not load it.
+#
+# The audit job installs the PUBLISHED release from PyPI on every
+# platform and checks it is this commit's version.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  wheels:
+    uses: ./.github/workflows/wheels.yml
+
+  publish:
+    needs: wheels
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: wheels-*
+          path: dist
+          merge-multiple: true
+      - uses: pypa/gh-action-pypi-publish@release/v1
+
+  audit:
+    needs: publish
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install the PUBLISHED release from PyPI
+        shell: bash
+        # The CDN can lag the upload; retry instead of failing on a 404.
+        run: |
+          for attempt in $(seq 1 12); do
+            python3 -m pip install --upgrade --no-cache-dir omml && break
+            echo "attempt $attempt: not visible yet; retrying"
+            sleep 15
+          done
+      - name: The installed version is this commit's version
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import importlib.metadata as m
+          import pathlib
+          import re
+          files = [pathlib.Path(p) for p in ("pyproject.toml", "setup.py")]
+          want = next(
+              found.group(1)
+              for found in (
+                  re.search(r'\bversion\s*=\s*"([^"]+)"', p.read_text())
+                  for p in files if p.exists()
+              )
+              if found
+          )
+          got = m.version("omml")
+          assert got == want, f"PyPI served {got}, this commit is {want}"
+          import omml
+          print("audited omml", got)
+          PY
