@@ -26,6 +26,10 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
         with:
           toolchain: '1.95.0'
+      - name: Install PyYAML with libyaml
+        run: python -m pip install --disable-pip-version-check "--only-binary=:all:" pyyaml==6.0.3
+      - name: Verify the replay pin checks
+        run: python -m unittest discover -s scripts/tests -v
       - name: Build the pinned public native library once
         run: python scripts/ci.py build-native
       - uses: actions/upload-artifact@v4
@@ -85,3 +89,45 @@ jobs:
           path: dist/*.whl
           if-no-files-found: error
           retention-days: 30
+  replay:
+    name: Pinned omml generation replay (${{ matrix.os }})
+    needs: native
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          name: native-${{ matrix.os }}
+          path: .native
+      - name: Build the wheel and install it in a fresh environment
+        run: python scripts/ci.py install-wheel
+      - name: Install PyYAML with libyaml into that environment
+        shell: bash
+        run: |
+          PY=.ci-venv/bin/python; [ -x "$PY" ] || PY=.ci-venv/Scripts/python.exe
+          "$PY" -m pip install --disable-pip-version-check "--only-binary=:all:" pyyaml==6.0.3
+      - name: Replay every row of the pinned generation on the installed wheel
+        shell: bash
+        run: |
+          PY=.ci-venv/bin/python; [ -x "$PY" ] || PY=.ci-venv/Scripts/python.exe
+          "$PY" scripts/corpus_replay.py
+      - name: Check the pin against the testsuite validator
+        if: always() && hashFiles('.testsuite/scripts/validate-stages.rb') != ''
+        shell: bash
+        run: ruby .testsuite/scripts/validate-stages.rb .testsuite --pin ci/testsuite-pin.yml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: replay-evidence-${{ matrix.os }}
+          include-hidden-files: true
+          path: .ci-evidence/*
+          if-no-files-found: warn
+          retention-days: 7

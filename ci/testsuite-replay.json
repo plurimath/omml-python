@@ -1,0 +1,14 @@
+{
+  "commit": "337262eda0483ceaa43a02cc52362c5b721e5eb3",
+  "generation": 2,
+  "snapshot_digest": "sha256:1d8307a72fa48acfae8fd3e5f5bebecb941e02282aa265f3e9c168b96761d439",
+  "note": "Rows this consumer executes from the pinned generation: the model-roundtrip rows, minus rows superseded by an -r2 sibling (as in the Ruby gem's scripts/replay_corpus.rb). ids_sha256 is the SHA-256 of the sorted executed IDs, one per line. Payloads of other boundaries (legacy oracles) are not executed.",
+  "total_rows": 199,
+  "superseded": [],
+  "executed": {
+    "model-roundtrip": {
+      "rows": 199,
+      "ids_sha256": "687f7e5d1a296ae40e28f5c5d656b070326fd85df7b399a3daa6a7792f6efc94"
+    }
+  }
+}
