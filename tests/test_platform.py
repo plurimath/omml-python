@@ -2,6 +2,7 @@ import hashlib
 from importlib.metadata import distribution
 import json
 from pathlib import Path
+import re
 import sys
 import sysconfig
 import unittest
@@ -19,7 +20,16 @@ class InstalledPlatform(unittest.TestCase):
         self.assertEqual(receipt["library"], expected)
         self.assertEqual(receipt["platform_tag"], platform)
         self.assertEqual(hashlib.sha256((native / expected).read_bytes()).hexdigest(), receipt["sha256"])
-        self.assertIn("Tag: py3-none-" + platform, distribution("omml").read_text("WHEEL"))
+        tags = [line.split(":", 1)[1].strip()
+                for line in distribution("omml").read_text("WHEEL").splitlines()
+                if line.startswith("Tag:")]
+        if platform.startswith("linux_"):
+            # scripts/wheel_tags.py retags linux_<arch> with the measured policy.
+            arch = re.escape(platform[len("linux_"):])
+            policy = re.compile(r"py3-none-(?:many|musl)linux_\d+_\d+_" + arch)
+            self.assertTrue(tags and all(policy.fullmatch(tag) for tag in tags), tags)
+        else:
+            self.assertIn("py3-none-" + platform, tags)
         manifest = json.loads((native / "licenses" / "manifest.json").read_bytes())
         for dependency in manifest:
             for name, digest in dependency["notices"].items():

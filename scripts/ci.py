@@ -138,7 +138,10 @@ def _build_wheel(dist):
 def build_wheel(dist):
     _build_wheel(dist)
     # linux_* -> the manylinux policy auditwheel measures; twine check; tag listing.
-    subprocess.run([sys.executable, str(ROOT / "scripts/wheel_tags.py"), str(dist)],
+    # The pinned tools need Python >= 3.10, so CI can name a separate interpreter
+    # for them (WHEEL_TOOLS_PYTHON); the wheel itself is py3-none-<platform>.
+    tools = os.environ.get("WHEEL_TOOLS_PYTHON") or sys.executable
+    subprocess.run([tools, str(ROOT / "scripts/wheel_tags.py"), str(dist)],
                    cwd=ROOT, check=True)
 
 
