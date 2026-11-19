@@ -7,12 +7,12 @@
     "kind": "prebuilt-library",
     "repository": "plurimath/omml-rs",
     "local": "workspace/xml-native/omml-rs",
-    "revision": "8437a1fdd9fb14003f1ec76f02f177bfe58ed0c8",
+    "revision": "a7cb82499e9bf17a06fafe6b047bdd253fae4176",
     "public": true,
     "deps": {
       "lutaml_rs": {
         "repository": "suleman-uzair/lutaml-rs",
-        "revision": "828275bd28facc7af8caf5c0fa402ec6962369df",
+        "revision": "02340c77d8034826f285927520eda83cb89d4955",
         "public": true
       },
       "moxml_rs": {
