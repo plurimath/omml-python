@@ -1,8 +1,8 @@
 {
-  "native_source_commit": "de5ebf8e35dd11cb70409cb4d44f678acfce7427",
-  "cargo_lock_sha256": "b87c7407fd1f79e6dcb6e0b1425f1ad2ee404ddbbc9315e7b014c0b8b0fb2924",
+  "native_source_commit": "8437a1fdd9fb14003f1ec76f02f177bfe58ed0c8",
+  "cargo_lock_sha256": "ef6c2c6f20edc36280e4ddd00203d030318db0d5ad28d3d1236371b589864e47",
   "native_source_dependencies": {
-    "lutaml-rs": "0d1a93de8ed4d80824c6e341ab95fede3e94b48a"
+    "lutaml-rs": "828275bd28facc7af8caf5c0fa402ec6962369df"
   },
   "native_data": {
     "omml-rs": {

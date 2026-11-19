@@ -334,6 +334,10 @@ def run(pin_path=PIN, expectation_path=EXPECTATION, workdir=None, evidence=None)
 
 
 def main():
+    # Row ids and failure detail may hold non-ASCII text; a legacy console code page must not abort the report.
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="backslashreplace")
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--pin", default=PIN)
     parser.add_argument("--expectation", default=EXPECTATION)
