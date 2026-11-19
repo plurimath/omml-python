@@ -111,7 +111,7 @@ def build_python():
     return python
 
 
-def build_wheel(dist):
+def _build_wheel(dist):
     dist.mkdir(parents=True, exist_ok=True)
     py = build_python()
     if NATIVE is None:
@@ -133,6 +133,16 @@ def build_wheel(dist):
     elif kind == "cargo-build":
         run([py, ROOT / "scripts/build-wheel.py", "--rust-source", rust,
              "--target-dir", SOURCES / "target", "--wheel-dir", dist], "wheel")
+
+
+def build_wheel(dist):
+    _build_wheel(dist)
+    # linux_* -> the manylinux policy auditwheel measures; twine check; tag listing.
+    # The pinned tools need Python >= 3.10, so CI can name a separate interpreter
+    # for them (WHEEL_TOOLS_PYTHON); the wheel itself is py3-none-<platform>.
+    tools = os.environ.get("WHEEL_TOOLS_PYTHON") or sys.executable
+    subprocess.run([tools, str(ROOT / "scripts/wheel_tags.py"), str(dist)],
+                   cwd=ROOT, check=True)
 
 
 def environment():
